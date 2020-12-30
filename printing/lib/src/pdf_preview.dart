@@ -73,7 +73,7 @@ class PdfPreview extends StatefulWidget {
   /// Decoration of scrollView
   final Decoration scrollViewDecoration;
 
-  /// Decoration of _PdfPreviewPage
+  /// Decoration of PdfPreviewPage
   final Decoration pdfPreviewPageDecoration;
 
   /// Name of the PDF when sharing. It must include the extension.
@@ -90,7 +90,7 @@ class _PdfPreviewState extends State<PdfPreview> {
   final GlobalKey<State<StatefulWidget>> shareWidget = GlobalKey();
   final GlobalKey<State<StatefulWidget>> listView = GlobalKey();
 
-  final List<_PdfPreviewPage> pages = <_PdfPreviewPage>[];
+  final List<PdfPreviewPage> pages = <PdfPreviewPage>[];
 
   PdfPageFormat pageFormat;
 
@@ -111,8 +111,7 @@ class _PdfPreviewState extends State<PdfPreview> {
 
   Timer previewUpdate;
 
-  static const Map<String, PdfPageFormat> defaultPageFormats =
-      <String, PdfPageFormat>{
+  static const Map<String, PdfPageFormat> defaultPageFormats = <String, PdfPageFormat>{
     'A4': PdfPageFormat.a4,
     'Letter': PdfPageFormat.letter,
   };
@@ -148,12 +147,12 @@ class _PdfPreviewState extends State<PdfPreview> {
       }
       setState(() {
         if (pages.length <= pageNum) {
-          pages.add(_PdfPreviewPage(
+          pages.add(PdfPreviewPage(
             page: page,
             pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
           ));
         } else {
-          pages[pageNum] = _PdfPreviewPage(
+          pages[pageNum] = PdfPreviewPage(
             page: page,
             pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
           );
@@ -168,8 +167,7 @@ class _PdfPreviewState extends State<PdfPreview> {
 
   @override
   void initState() {
-    final locale =
-        WidgetsBinding.instance.window.locale ?? const Locale('en', 'US');
+    final locale = WidgetsBinding.instance.window.locale ?? const Locale('en', 'US');
     final cc = locale.countryCode;
     if (cc == 'US' || cc == 'CA' || cc == 'MX') {
       pageFormat = widget.initialPageFormat ?? PdfPageFormat.letter;
@@ -212,10 +210,7 @@ class _PdfPreviewState extends State<PdfPreview> {
     previewUpdate?.cancel();
     previewUpdate = Timer(const Duration(seconds: 1), () {
       final mq = MediaQuery.of(context);
-      dpi = (min(mq.size.width - 16, widget.maxPageWidth ?? double.infinity)) *
-          mq.devicePixelRatio /
-          pageFormat.width *
-          72;
+      dpi = (min(mq.size.width - 16, widget.maxPageWidth ?? double.infinity)) * mq.devicePixelRatio / pageFormat.width * 72;
 
       _raster();
     });
@@ -299,9 +294,7 @@ class _PdfPreviewState extends State<PdfPreview> {
       page = _zoomPreview();
     } else {
       page = Container(
-        constraints: widget.maxPageWidth != null
-            ? BoxConstraints(maxWidth: widget.maxPageWidth)
-            : null,
+        constraints: widget.maxPageWidth != null ? BoxConstraints(maxWidth: widget.maxPageWidth) : null,
         child: _createPreview(),
       );
 
@@ -367,8 +360,7 @@ class _PdfPreviewState extends State<PdfPreview> {
               final key = keys[index];
               final val = _pageFormats[key];
               return DropdownMenuItem<PdfPageFormat>(
-                child: Text(key,
-                    style: TextStyle(color: theme.accentIconTheme.color)),
+                child: Text(key, style: TextStyle(color: theme.accentIconTheme.color)),
                 value: val,
               );
             },
@@ -455,12 +447,9 @@ class _PdfPreviewState extends State<PdfPreview> {
 
   Future<void> _share() async {
     // Calculate the widget center for iPad sharing popup position
-    final RenderBox referenceBox =
-        shareWidget.currentContext.findRenderObject();
-    final topLeft =
-        referenceBox.localToGlobal(referenceBox.paintBounds.topLeft);
-    final bottomRight =
-        referenceBox.localToGlobal(referenceBox.paintBounds.bottomRight);
+    final RenderBox referenceBox = shareWidget.currentContext.findRenderObject();
+    final topLeft = referenceBox.localToGlobal(referenceBox.paintBounds.topLeft);
+    final bottomRight = referenceBox.localToGlobal(referenceBox.paintBounds.bottomRight);
     final bounds = Rect.fromPoints(topLeft, bottomRight);
 
     final bytes = await widget.build(pageFormat);
@@ -476,8 +465,8 @@ class _PdfPreviewState extends State<PdfPreview> {
   }
 }
 
-class _PdfPreviewPage extends StatelessWidget {
-  const _PdfPreviewPage({
+class PdfPreviewPage extends StatelessWidget {
+  const PdfPreviewPage({
     Key key,
     this.page,
     this.pdfPreviewPageDecoration,

@@ -16,9 +16,11 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -34,7 +36,102 @@ import 'resume.dart';
 
 void main() {
   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-  runApp(MaterialApp(home: MyApp()));
+  runApp(MaterialApp(home: App()));
+}
+
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  var pages = <PdfPreviewPage>[];
+
+  Future<bool> _raster() async {
+    Uint8List _doc = (await rootBundle.load('assets/test.pdf')).buffer.asUint8List();
+
+    var pageNum = 0;
+    await for (final PdfRaster page in Printing.raster(
+      _doc,
+      dpi: 600.0,
+      // dpi: dpi,
+      // pages: widget.pages,
+    )) {
+      print('PAGEPAGE');
+
+      pages.add(PdfPreviewPage(
+        page: page,
+        // pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
+      ));
+
+      // if (!mounted) {
+      // return false;
+      // }
+      // setState(() {
+      //   if (pages.length <= pageNum) {
+      //     pages.add(PdfPreviewPage(
+      //       page: page,
+      //       // pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
+      //     ));
+      //   } else {
+      //     pages[pageNum] = PdfPreviewPage(
+      //       page: page,
+      //       // pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
+      //     );
+      //   }
+      // });
+
+      pageNum++;
+    }
+
+    // pages.removeRange(pageNum, pages.length);
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: FutureBuilder(
+          future: _raster(),
+          builder: (context, state) {
+            if (state.hasData) {
+              return ListView(
+                children: pages,
+              );
+            }
+            return const CircularProgressIndicator();
+          },
+        ),
+        // Builder(
+        //   builder: (context) {
+        //     (await rootBundle.load(/*YOUR IMAGE PATH HERE*/)).buffer.asUint8List()
+        //     Printing.raster(
+        //       _doc,
+        //     );
+        //     // for (final PdfRaster page in ) {
+        //     //   if (!mounted) {
+        //     //     return;
+        //     //   }
+        //     //   setState(() {
+        //     //     if (pages.length <= pageNum) {
+        //     //       pages.add(_PdfPreviewPage(
+        //     //         page: page,
+        //     //         pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
+        //     //       ));
+        //     //     } else {
+        //     //       pages[pageNum] = _PdfPreviewPage(
+        //     //         page: page,
+        //     //         pdfPreviewPageDecoration: widget.pdfPreviewPageDecoration,
+        //     //       );
+        //     //     }
+        //     //   });
+
+        //     //   pageNum++;
+        //     // }
+
+        //     return null;
+        //   },
+        // ),
+      );
 }
 
 class MyApp extends StatefulWidget {
